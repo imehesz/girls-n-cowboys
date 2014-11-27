@@ -14,10 +14,12 @@ window.addEventListener "load", ->
     init: (p) ->
       @._super p,
         sheet: "player"
+        sprite: "player"
         x: 410
         y: 90
+        direction: "left"
       
-      @.add "2d, platformerControls" 
+      @.add "2d, platformerControls, animation" 
       
       @.on "hit.sprite", (collision) ->
         if collision.obj.isA "Tower"
@@ -25,7 +27,17 @@ window.addEventListener "load", ->
             label: "You Won!"
             action: "levelUp"
           @.destroy()
-          
+    step: (dt) ->
+      processed = false
+      console.log "STEP"
+      
+      if not processed
+        console.log "p.vx", @.p.vx
+        if @.p.vx > 0
+          @.play "walk_right"
+        else
+          @.play "walk_left"
+
   Q.Sprite.extend "Tower",
     init: (p) ->
       @._super p, sheet: "tower"
@@ -72,7 +84,7 @@ window.addEventListener "load", ->
     
     stage.add("viewport").follow player
     
-    stage.insert new Q.Number0 x: 600, y: 225
+    #stage.insert new Q.Number0 x: 600, y: 225
     
     stage.insert new Q.Tower
       x:1000
@@ -95,6 +107,19 @@ window.addEventListener "load", ->
     Q.sheet "tiles", "tiles.png", tilew: 32, tileh: 32
     Q.compileSheets "girls-n-cowboys-sprites.png", "sprites.json"
     Q.compileSheets "numbers.png", "numbers.json"
+    
+    Q.animations "player", 
+      walk_right:
+        flip: "x"
+        loop: true
+        rate: 1/3
+        frames: [0]
+      walk_left:
+        flip: false
+        loop: true
+        rate: 1/3
+        frames: [0]
+    
     Q.stageScene "level" + currentLevel
    
   return
