@@ -1,0 +1,26 @@
+{
+  "number0":{
+    "sx":0,
+    "sy":0,
+    "cols":1,
+    "tilew":20,
+    "tileh":22,
+    "frames":1
+  },
+  "number1":{
+    "sx":0,
+    "sy":20,
+    "cols":1,
+    "tilew":19,
+    "tileh":19,
+    "frames":1
+  },
+  "number2":{
+    "sx":0,
+    "sy":40,
+    "cols":1,
+    "tilew":19,
+    "tileh":19,
+    "frames":1
+  }
+}
