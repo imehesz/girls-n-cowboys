@@ -3,22 +3,24 @@ window.addEventListener "load", ->
   BACKGROUND_CLOUD="background-cloud.png"
   maxLevel = 7
   currentLevel = 1
-  
-  currentLevel = prompt("Level (max: " + maxLevel + ")", currentLevel) if DEBUG is true
-  
-  Q = window.Q = Quintus()
+
+  currentLevel = 1 #prompt("Level (max: " + maxLevel + ")", currentLevel) if DEBUG is true
+
+  Q = window.Q = Quintus(development:true)
     .include "Sprites, Scenes, Input, 2D, Anim, Touch, UI"
     .setup({maximize:true}).controls().touch()
-    
+
   Q.Sprite.extend "Player",
     init: (p) ->
+      @once = false
+      
       @._super p,
         sheet: "player"
         sprite: "player"
-        x: 410
-        y: 90
+        x: 50
+        y: 201
         direction: "left"
-      
+
       @.add "2d, platformerControls, animation" 
       
       @.on "hit.sprite", (collision) ->
@@ -29,10 +31,13 @@ window.addEventListener "load", ->
           @.destroy()
     step: (dt) ->
       processed = false
-      console.log "STEP"
+      
+      if @once is false
+        console.log "dt", dt
+        console.log "this", @
+        @once = true
       
       if not processed
-        console.log "p.vx", @.p.vx
         if @.p.vx > 0
           @.play "walk_right"
         else
@@ -89,6 +94,23 @@ window.addEventListener "load", ->
     stage.insert new Q.Tower
       x:1000
       y:210
+      
+    container = stage.insert new Q.UI.Container
+      id: "welcomemessage"
+      fill: "gray",
+      border: 5,
+      shadow: 10,
+      shadowColor: "rgba(0,0,0,0.5)",
+      y: 135,
+      x: 250 
+    
+    stage.insert new Q.UI.Text( 
+      label: "Hi, my name is Princess V.\nCan you help me find my castle?",
+      color: "white",
+      x: 0,
+      y: 0), container
+    
+    container.fit 5,5
 
   Q.scene "endGame", (stage) ->
     container = stage.insert new Q.UI.Container x: Q.width/2, y: Q.height/2, fill: "rgba(0,0,0,0.5)"
@@ -103,8 +125,8 @@ window.addEventListener "load", ->
       
     container.fit(20)
       
-  Q.load "numbers.png, numbers.json, girls-n-cowboys-sprites.png, sprites.json, level1.json, level2.json, level5.json, tiles.png, background-wall.png, " + BACKGROUND_CLOUD, ->
-    Q.sheet "tiles", "tiles.png", tilew: 32, tileh: 32
+  Q.load "numbers.png, numbers.json, girls-n-cowboys-sprites.png, sprites.json, level1.json, level2.json, level5.json, girls-n-cowboys-tiles.png, background-wall.png, " + BACKGROUND_CLOUD, ->
+    Q.sheet "tiles", "girls-n-cowboys-tiles.png", tilew: 32, tileh: 32
     Q.compileSheets "girls-n-cowboys-sprites.png", "sprites.json"
     Q.compileSheets "numbers.png", "numbers.json"
     
