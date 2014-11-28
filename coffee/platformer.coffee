@@ -2,9 +2,8 @@ window.addEventListener "load", ->
   DEBUG=true
   BACKGROUND_CLOUD="background-cloud.png"
   maxLevel = 7
-  currentLevel = 1
-
-  currentLevel = 1 #prompt("Level (max: " + maxLevel + ")", currentLevel) if DEBUG is true
+  currentLevel = 3
+  currentLevel = prompt("Level (max: " + maxLevel + ")", currentLevel) if DEBUG is true
 
   Q = window.Q = Quintus(development:true)
     .include "Sprites, Scenes, Input, 2D, Anim, Touch, UI"
@@ -17,6 +16,7 @@ window.addEventListener "load", ->
       @._super p,
         sheet: "player"
         sprite: "player"
+        jumpSpeed: -375
         x: 50
         y: 201
         direction: "left"
@@ -111,6 +111,36 @@ window.addEventListener "load", ->
       y: 0), container
     
     container.fit 5,5
+    
+  Q.scene "level2", (stage) ->
+    stage.insert new Q.Repeater
+      asset: BACKGROUND_CLOUD
+      speedX: 0.5
+      speedY: 0.5
+
+    stage.collisionLayer new Q.TileLayer dataAsset: "level2.json", sheet: "tiles"
+    
+    player = stage.insert new Q.Player()
+    
+    stage.add("viewport").follow player
+    stage.insert new Q.Tower
+      x:1000
+      y:210
+
+  Q.scene "level3", (stage) ->
+    stage.insert new Q.Repeater
+      asset: BACKGROUND_CLOUD
+      speedX: 0.5
+      speedY: 0.5
+
+    stage.collisionLayer new Q.TileLayer dataAsset: "level3.json", sheet: "tiles"
+    
+    player = stage.insert new Q.Player()
+    
+    stage.add("viewport").follow player
+    stage.insert new Q.Tower
+      x:1000
+      y:210
 
   Q.scene "endGame", (stage) ->
     container = stage.insert new Q.UI.Container x: Q.width/2, y: Q.height/2, fill: "rgba(0,0,0,0.5)"
@@ -125,7 +155,7 @@ window.addEventListener "load", ->
       
     container.fit(20)
       
-  Q.load "numbers.png, numbers.json, girls-n-cowboys-sprites.png, sprites.json, level1.json, level2.json, level5.json, girls-n-cowboys-tiles.png, background-wall.png, " + BACKGROUND_CLOUD, ->
+  Q.load "numbers.png, numbers.json, girls-n-cowboys-sprites.png, sprites.json, level1.json, level2.json, level3.json, girls-n-cowboys-tiles.png, background-wall.png, " + BACKGROUND_CLOUD, ->
     Q.sheet "tiles", "girls-n-cowboys-tiles.png", tilew: 32, tileh: 32
     Q.compileSheets "girls-n-cowboys-sprites.png", "sprites.json"
     Q.compileSheets "numbers.png", "numbers.json"
