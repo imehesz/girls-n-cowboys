@@ -21,10 +21,12 @@ window.addEventListener "load", ->
         x: 50
         y: 201
         direction: "left"
+        score: 0
 
       @.add "2d, platformerControls, animation" 
       
       @.on "hit.sprite", (collision) ->
+        updateCoins = false
         if collision.obj.isA "Tower"
           Q.stageScene "endGame", 1,
             label: "You Won!"
@@ -32,12 +34,20 @@ window.addEventListener "load", ->
           @.destroy()
           
         if collision.obj.isA "Number1"
-          console.log "Point +1"
+          @.p.score++
           collision.obj.destroy()
+          updateCoins = true
   
         if collision.obj.isA "Number2"
-          console.log "Point +2"
+          @.p.score += 2
           collision.obj.destroy()
+          updateCoins = true
+          
+        if updateCoins
+          coinsLabel = Q("UI.Text",1).items[1]
+          coinsLabel.p.label = "Points x " + @.p.score
+          
+        console.log @.p.points
           
     step: (dt) ->
       processed = false
@@ -95,8 +105,34 @@ window.addEventListener "load", ->
   Q.Sprite.extend "Number2",
     init: (p) ->
       @._super p, sheet: "number2"
-      @.add "2d, aiBounce"
+      @.add "2d"
   
+  Q.scene "gameStats", (stage) ->
+    container = stage.insert new Q.UI.Container
+      id: "welcomemessage"
+      fill: "gray",
+      border: 5,
+      shadow: 10,
+      shadowColor: "rgba(0,0,0,0.5)",
+      y: 30,
+      x: document.body.clientWidth/2,
+      w: 960,
+      h: 40
+      
+    #alert $(window).width()
+      
+    lives = stage.insert new Q.UI.Text(
+      label: "Lives x 3",
+      color: "gold",
+      x: -300,
+      y: 0), container
+      
+    points = stage.insert new Q.UI.Text(
+      label: "Points x 0",
+      color: "gold",
+      x: 300,
+      y: 0), container
+    
   Q.scene "level1", (stage) ->
     stage.insert new Q.Repeater(
       asset: BACKGROUND_CLOUD
@@ -195,5 +231,6 @@ window.addEventListener "load", ->
         frames: [0]
     
     Q.stageScene "level" + currentLevel
+    Q.stageScene "gameStats",1
    
   return
