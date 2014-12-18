@@ -2,8 +2,9 @@ window.addEventListener "load", ->
   DEBUG=true
   BACKGROUND_CLOUD="background-cloud.png"
   maxLevel = 7
-  currentLevel = 3
-  currentLevel = prompt("Level (max: " + maxLevel + ")", currentLevel) if DEBUG is true
+  currentLevel = 1
+  
+  #currentLevel = prompt("Level (max: " + maxLevel + ")", currentLevel) if DEBUG is true
 
   Q = window.Q = Quintus(development:true)
     .include "Sprites, Scenes, Input, 2D, Anim, Touch, UI"
@@ -29,6 +30,15 @@ window.addEventListener "load", ->
             label: "You Won!"
             action: "levelUp"
           @.destroy()
+          
+        if collision.obj.isA "Number1"
+          console.log "Point +1"
+          collision.obj.destroy()
+  
+        if collision.obj.isA "Number2"
+          console.log "Point +2"
+          collision.obj.destroy()
+          
     step: (dt) ->
       processed = false
       
@@ -76,6 +86,16 @@ window.addEventListener "load", ->
           console.log "got bumpedd, pickup the number!"
           collision.obj.c.x = collision.obj.p.x
           collision.obj.c.y = collision.obj.p.y
+          
+  Q.Sprite.extend "Number1",
+    init: (p) ->
+      @._super p, sheet: "number1"
+      @.add "2d, aiBounce"
+      
+  Q.Sprite.extend "Number2",
+    init: (p) ->
+      @._super p, sheet: "number2"
+      @.add "2d, aiBounce"
   
   Q.scene "level1", (stage) ->
     stage.insert new Q.Repeater(
@@ -90,6 +110,8 @@ window.addEventListener "load", ->
     stage.add("viewport").follow player
     
     #stage.insert new Q.Number0 x: 600, y: 225
+    stage.insert new Q.Number1 x: 600, y: 225
+    stage.insert new Q.Number2 x: 640, y: 225
     
     stage.insert new Q.Tower
       x:1000
