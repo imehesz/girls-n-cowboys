@@ -3,6 +3,7 @@ window.addEventListener "load", ->
   BACKGROUND_CLOUD="background-cloud.png"
   maxLevel = 7
   currentLevel = 1
+  maxLife = 3
   
   #currentLevel = prompt("Level (max: " + maxLevel + ")", currentLevel) if DEBUG is true
 
@@ -22,6 +23,7 @@ window.addEventListener "load", ->
         y: 201
         direction: "left"
         score: 0
+        lives: maxLife
 
       @.add "2d, platformerControls, animation" 
       
@@ -34,12 +36,12 @@ window.addEventListener "load", ->
           @.destroy()
           
         if collision.obj.isA "Number1"
-          @.p.score++
+          @.p.score += 10
           collision.obj.destroy()
           updateCoins = true
   
         if collision.obj.isA "Number2"
-          @.p.score += 2
+          @.p.score += 20
           collision.obj.destroy()
           updateCoins = true
           
@@ -48,7 +50,19 @@ window.addEventListener "load", ->
           coinsLabel.p.label = "Points x " + @.p.score
           
         console.log @.p.points
-          
+    damage: ->
+      console.log "damaging..."
+      if (!@.p.timeInvincible)
+        @.p.lives--
+        @.p.timeInvincible = 1
+        
+        if (@.p.lives < 0)
+          @.destroy()
+          Q.stageScene "endGame", 1, label: "Game Over :/ Points: " + @.p.score
+        else
+          livesLabel = Q("UI.Text",1).items[0]
+          livesLabel.p.label = "Lives x " + @.p.lives
+    
     step: (dt) ->
       processed = false
       
@@ -62,6 +76,9 @@ window.addEventListener "load", ->
           @.play "walk_right"
         else
           @.play "walk_left"
+          
+      if @.p.timeInvincible > 0
+        @.p.timeInvincible = Math.max @.p.timeInvincible-dt, 0
 
   Q.Sprite.extend "Tower",
     init: (p) ->
@@ -77,13 +94,15 @@ window.addEventListener "load", ->
       
       @.on "bump.left, bump.right, bump.bottom", (collision) ->
         if collision.obj.isA "Player"
-          Q.stageScene "endGame", 1, label: "You Lost :/"
-          collision.obj.destroy()
+          collision.obj.damage()
           
       @.on "bump.top", (collision) ->
         if collision.obj.isA "Player"
           @.destroy()
           collision.obj.p.vy = -300
+          collision.obj.p.score += 50
+          scoreLabel = Q("UI.Text",1).items[1]
+          scoreLabel.p.label = "Points x " + collision.obj.p.score
   
   Q.Sprite.extend "Number0",
     init: (p) ->
@@ -134,6 +153,7 @@ window.addEventListener "load", ->
       y: 0), container
     
   Q.scene "level1", (stage) ->
+    Q.stageScene "gameStats",1
     stage.insert new Q.Repeater(
       asset: BACKGROUND_CLOUD
       speedX: 0.5
@@ -149,10 +169,10 @@ window.addEventListener "load", ->
     stage.insert new Q.Number1 x: 600, y: 225
     stage.insert new Q.Number2 x: 640, y: 225
     
-    stage.insert new Q.Tower
-      x:1000
-      y:210
-      
+    stage.insert new Q.Tower x:1000, y:210
+
+    stage.insert new Q.Enemy x: 800, y:210
+
     container = stage.insert new Q.UI.Container
       id: "welcomemessage"
       fill: "gray",
@@ -209,7 +229,7 @@ window.addEventListener "load", ->
     
     button.on "click", ->
       Q.clearStages()
-      Q.stageScene("level" + currentLevel);
+      Q.stageScene("level1");
       
     container.fit(20)
       
@@ -231,6 +251,3 @@ window.addEventListener "load", ->
         frames: [0]
     
     Q.stageScene "level" + currentLevel
-    Q.stageScene "gameStats",1
-   
-  return
